@@ -1,0 +1,19 @@
+/FileStore/tables/test11.csv
+
+dff=spark.read.csv("/FileStore/tables/test11.csv",header=True,inferSchema=True)
+
+
+from pyspark.sql.functions import mean
+mean_val=dff.select(mean(dff['Sales'])).collect()
+mean_val[0][0]
+
+mean_sales=mean_val[0][0]
+ab=dff.na.fill(mean_sales,["Sales"])
+display(ab)
+
+
+
+ab.na.fill('SalahUddin').show()
+
+sum=dff.na.fill({'Name':"New Name",'Sales':mean_sales})
+display(sum)
