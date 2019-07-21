@@ -1,0 +1,19 @@
+
+import org.apache.spark.mllib.recommendation.ALS
+import org.apache.spark.mllib.recommendation.Rating
+
+val inputdata= sc.textFile("u.data");
+inputdata.first();
+val rawRattings= inputdata.map(_.split("\t").take(3));
+val ratings= rawRattings.map {case Array(user, movie, rating) => Rating(user.toInt, movie.toInt, rating.toDouble)}
+ratings.first()
+val model = ALS.train(ratings, 50, 10, 0.01)
+val predictedRating = model.predict(789, 123)
+val userid = 789
+val K = 10
+val topKRecs = model.recommendProducts(userid, K)
+val mivies = sc.textFile("u.item");
+val titles = mivies.map(line => line.split("\\|").take(2)).map(array => (array(0).toInt, array(1))).collectAsMap()
+val moviesForUser = ratings.keyBy(_.user).lookup(789)
+println(moviesForUser.size)
+moviesForUser.sortBy(-_.rating).take(33).map(rating => (titles(rating.product), rating.rating)).foreach(println)
